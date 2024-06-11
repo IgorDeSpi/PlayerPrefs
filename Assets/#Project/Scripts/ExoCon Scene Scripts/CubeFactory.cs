@@ -1,29 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CubeFactory : MonoBehaviour
 {
-    [SerializeField] private GameObject prefab;
-    [Range(1, 100)][SerializeField] private int batch = 10;
-    [SerializeField] private float coolDown = 1f;
-    [SerializeField] private CubePool pool;
-
+    [SerializeField] float cooldown = 0.5f;
+    [SerializeField] GameObject prefab;
+    [SerializeField]private PoolCube pool;
+    // Start is called before the first frame update
     void Start()
     {
+
+        if (pool == null)
+        {
+            pool = GetComponent<PoolCube>();
+        }
+        if (pool == null)
+        {
+            pool = FindObjectOfType<PoolCube>();
+        }
         StartCoroutine(Create());
     }
 
     private IEnumerator Create()
     {
-        while(true)
+        while (true)
         {
-            for(int i = 0; i < batch; i++)
+            if (pool != null)
             {
-                CubeMovement movement = pool.Create(new Vector3(15f + i, Random.Range(-5.5f,7.5f), transform.position.z), transform.rotation);
-                movement.Initialize();
+                pool.Spawn(transform.position + Vector3.up * Random.Range(-5f, 5f), Quaternion.identity);
             }
-            yield return new WaitForSeconds(coolDown);
+            else
+            {
+                Instantiate(prefab, transform.position + Vector3.up * Random.Range(-5f, 5f), Quaternion.identity);
+            }
+            yield return new WaitForSeconds(cooldown);
         }
     }
+
 }
